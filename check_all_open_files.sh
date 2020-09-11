@@ -11,13 +11,15 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-SUDO=sudo
-LSOF=lsof
-
+SUDO=$(which sudo)
+LSOF=$(which lsof)
+PGREP=$(which pgrep)
+WC=$(which wc)
+PROGRAM=""
 ERROR_CODE=-1
 set +u
 if [ -z "$1" ] || [ -z "$2" ] || [ "$2" -lt "$1" ] ; then
-    echo "Usage: $0 warning critical"
+    echo "Usage: $0 warning critical program"
     echo "  warning: int"
     echo "  critical: int and >= warning"
     echo " program: Optional String with name of program"
@@ -27,6 +29,9 @@ else
     WARNING=$1
     CRITICAL=$2
 fi
+if [ ! -z "$3" ];then
+    PROGRAM="$3"
+fi
 set -u
 
 function checkExitStatus {
@@ -35,10 +40,17 @@ function checkExitStatus {
         exit -1
     fi
 }
-if [ -z "$3" ];then
+if [ -z "$PROGRAM" ];then
     LSOF=$("$SUDO" "$LSOF" | "$WC" -l)
 else
-    LSOF=$("$SUDO" "$LSOF" -p "$("$PGREP" -f "$3")" | "$WC" -l)
+    PGREP=$("$PGREP" --full "$3")
+    summe=0
+    for i in $PGREP
+    do
+        tmp=$("$SUDO" "$LSOF" -p "$i" | "$WC" -l)
+        summe=$((summe + tmp))
+    done
+    LSOF=$summe
 fi
 if [ "$LSOF" -lt "$WARNING" ]; then
     echo "OK $LSOF files open|files=$LSOF;$WARNING;$CRITICAL;0"
