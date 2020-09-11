@@ -36,7 +36,7 @@ set -u
 
 function checkExitStatus {
     if [ "$1" -ne 0 ]; then
-        echo "!!! command failure !!! $2"
+        echo "UNKNOWN !!! command failure !!! $2"
         exit -1
     fi
 }
@@ -57,10 +57,10 @@ if [ "$LSOF" -lt "$WARNING" ]; then
     ERROR_CODE=0
 else
     if [ "$LSOF" -ge "$WARNING" ] && [ "$LSOF" -le "$CRITICAL" ]; then
-        echo "WARN $LSOF files open|files=$LSOF;$WARNING;$CRITICAL;0"
+        echo "WARNING $LSOF files open|files=$LSOF;$WARNING;$CRITICAL;0"
         ERROR_CODE=1
     elif [ "$LSOF" -ge "$CRITICAL" ]; then
-        echo "CRIT $LSOF files open|files=$LSOF;$WARNING;$CRITICAL;0"
+        echo "CRITICAL $LSOF files open|files=$LSOF;$WARNING;$CRITICAL;0"
         ERROR_CODE=2
   fi
 fi
