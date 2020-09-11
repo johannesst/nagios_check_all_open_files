@@ -43,7 +43,7 @@ function checkExitStatus {
 if [ -z "$PROGRAM" ];then
     LSOF=$("$SUDO" "$LSOF" | "$WC" -l)
 else
-    PGREP=$("$PGREP" --full "$3")
+    PGREP=$("$PGREP" -f "$3")
     summe=0
     for i in $PGREP
     do
